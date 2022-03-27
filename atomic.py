@@ -9,7 +9,6 @@ class Position:
 
 
 class Subshell:
-
     all_subshells = ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s", "4d", "5p", "6s", "4f", "5d", "6p", "7s", "5f", "6d", "7p"]
     capacities = { "s": 2, "p": 6, "d": 10, "f": 14 }
     def __init__(self, n, subshell):
@@ -45,13 +44,13 @@ class Atom:
             if self.free_electrons <= subshell.capacity:
                 for location in subshell:
                     self.add_electron(location)
-                    if self.free_electrons < 1:
+                    if not self.free_electrons:
                         return
             else:
                 self.add_subshell(subshell)
+                if not self.free_electrons:
+                    return
 
-            if self.free_electrons < 1:
-                return
 
     def add_electron(self, location):
         # print(f"Adding {location}, removing 1 from {self.free_electrons}")
