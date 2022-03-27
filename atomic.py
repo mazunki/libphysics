@@ -62,6 +62,14 @@ class Atom:
         self.electron_configuration.append(subshell)
         self.free_electrons -= subshell.capacity
 
+    def __iter__(self):
+        for configuration in self.electron_configuration:
+            if isinstance(configuration, Subshell):
+                for position in configuration:
+                    yield position
+            else:
+                yield configuration
+
     def __str__(self):
         return f"{self.name} (" + ", ".join(str(cf) for cf in self.electron_configuration) + ")"
 
