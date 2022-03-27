@@ -28,7 +28,7 @@ class Atom:
         self.restabilize_electrons()
 
     def restabilize_electrons(self):
-        free_electrons = self.atomic_number
+        self.free_electrons = self.atomic_number
         self.electron_configuration = []
 
         for location in Subshell.get_all_locations():
@@ -41,8 +41,8 @@ class Atom:
         self.free_electrons -= 1
 
 if __name__ == "__main__":
-    configurations = Subshell.get_all_locations()
-    print(list(configurations))
+    #configurations = Subshell.get_all_locations()
+    #print(list(configurations))
     
     atomic_number = int(input("Enter atomic number: "))
     atom = Atom(atomic_number)
