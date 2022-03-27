@@ -28,50 +28,67 @@ class Subshell:
         for n, subshell in Subshell.all_subshells:
             yield Subshell(int(n), subshell)
 
+class Configuration(list):
+    def __init__(self, atom, *args, **kwargs):
+        self.atom = atom
+        super().__init__(*args, **kwargs)
+    
+    def __iter__(self):
+        for item in super().__iter__():
+            if isinstance(item, Subshell):
+                for position in item:
+                    yield position
+            else:
+                yield item
+
+    def add_electron(self, location, log=False):
+        if log: print(f"Adding {location}, removing 1 from {self.atom.free_electrons}")
+        self.append(location)
+        self.atom.free_electrons -= 1
+        
+    def add_subshell(self, subshell, log=False):
+        if log: print(f"Adding {subshell}, removing {subshell.capacity} from {self.atom.free_electrons}")
+        self.append(subshell)
+        self.atom.free_electrons -= subshell.capacity
+
+
+    def fill(self, subshell, log=False):
+        if self.atom.free_electrons <= subshell.capacity:
+            for location in subshell:
+                self.add_electron(location, log)
+                if self.atom.free_electrons == 0:
+                    return
+        else:
+            self.add_subshell(subshell, log)
+            if self.atom.free_electrons == 0:
+                return
+
+    def __str__(self):
+        return ", ".join(str(item) for item in super().__iter__()) 
+
 
 class Atom:
     def __init__(self, atomic_number, name="Atom"):
         self.atomic_number = self.free_electrons = atomic_number
         self.name = name
-        self.electron_configuration = []
+        self.electron_configuration = Configuration(self)
         self.restabilize_electrons()
 
     def restabilize_electrons(self):
         self.free_electrons = self.atomic_number
-        self.electron_configuration = []
+        self.electron_configuration.clear()
 
         for subshell in Subshell.get_all():
-            if self.free_electrons <= subshell.capacity:
-                for location in subshell:
-                    self.add_electron(location)
-                    if not self.free_electrons:
-                        return
-            else:
-                self.add_subshell(subshell)
-                if not self.free_electrons:
-                    return
-
-
-    def add_electron(self, location):
-        # print(f"Adding {location}, removing 1 from {self.free_electrons}")
-        self.electron_configuration.append(location)
-        self.free_electrons -= 1
-        
-    def add_subshell(self, subshell):
-        # print(f"Adding {subshell}, removing {subshell.capacity} from {self.free_electrons}")
-        self.electron_configuration.append(subshell)
-        self.free_electrons -= subshell.capacity
+            self.electron_configuration.fill(subshell)
+            if not self.free_electrons:
+                break
 
     def __iter__(self):
         for configuration in self.electron_configuration:
-            if isinstance(configuration, Subshell):
-                for position in configuration:
-                    yield position
-            else:
-                yield configuration
+            yield configuration
 
     def __str__(self):
-        return f"{self.name} (" + ", ".join(str(cf) for cf in self.electron_configuration) + ")"
+        return f"{self.name} ({self.electron_configuration})"
 
 if __name__ == "__main__":
     #configurations = Subshell.get_all_locations()
