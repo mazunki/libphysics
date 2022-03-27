@@ -56,11 +56,11 @@ class Configuration(list):
         if self.atom.free_electrons <= subshell.capacity:
             for location in subshell:
                 self.add_electron(location, log)
-                if self.atom.free_electrons == 0:
+                if not self.atom.free_electrons:
                     return
         else:
             self.add_subshell(subshell, log)
-            if self.atom.free_electrons == 0:
+            if not self.atom.free_electrons:
                 return
 
     def __str__(self):
